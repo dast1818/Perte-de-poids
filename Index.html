@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --card: #181818;
+    --card2: #1f1f1f;
+    --border: #2a2a2a;
+    --accent: #c8f135;
+    --accent2: #ff4d4d;
+    --accent3: #4dc8ff;
+    --text: #f0f0f0;
+    --muted: #888;
+    --positive: #c8f135;
+    --negative: #ff4d4d;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 80px 0;
+  }
+
+  header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--accent);
+  }
+
+  .week-badge {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    gap: 0;
+    overflow-x: auto;
+  }
+
+  .tab {
+    padding: 14px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .page { display: none; padding: 20px; }
+  .page.active { display: block; }
+
+  /* SCORE BIG */
+  .score-hero {
+    text-align: center;
+    padding: 30px 20px;
+    background: var(--card);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .score-hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; left: -40px;
+    width: 120px; height: 120px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0.05;
+  }
+
+  .score-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .score-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 88px;
+    line-height: 1;
+    color: var(--accent);
+    transition: all 0.4s;
+  }
+
+  .score-number.negative { color: var(--negative); }
+
+  .score-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* GRID STATS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .stat-card .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .stat-card .stat-lbl {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .stat-card.accent-card { border-color: var(--accent); }
+  .stat-card.accent-card .stat-val { color: var(--accent); }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    margin-top: 20px;
+  }
+
+  /* CHECKIN */
+  .checkin-question {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .checkin-question .q-text {
+    font-size: 14px;
+    flex: 1;
+    line-height: 1.4;
+  }
+
+  .checkin-question .q-pts {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .toggle-wrap {
+    display: flex;
+    gap: 6px;
+  }
+
+  .toggle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card2);
+    color: var(--muted);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .toggle-btn.yes.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+
+  .toggle-btn.no.active {
+    background: var(--negative);
+    border-color: var(--negative);
+    color: #fff;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: opacity 0.2s;
+  }
+
+  .submit-btn:hover { opacity: 0.85; }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* POIDS INPUT */
+  .weight-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .weight-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .input-group {
+    flex: 1;
+  }
+
+  .input-group label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .input-group input {
+    width: 100%;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--text);
+    font-size: 16px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-group input:focus { border-color: var(--accent); }
+
+  /* HISTORIQUE */
+  .history-entry {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .history-entry .h-date {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .history-entry .h-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: var(--accent);
+  }
+
+  .history-entry .h-score.neg { color: var(--negative); }
+
+  .history-entry .h-details {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* STREAKS */
+  .streak-row {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .streak-icon {
+    font-size: 24px;
+    width: 40px;
+    text-align: center;
+  }
+
+  .streak-info { flex: 1; }
+  .streak-info .s-label { font-size: 13px; font-weight: 500; }
+  .streak-info .s-val { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .streak-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--accent3);
+  }
+
+  /* CHART */
+  .chart-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .chart-title {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  canvas { width: 100% !important; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color: #000;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 14px;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .progress-bar-bg {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+
+  .progress-kg {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    color: var(--accent);
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  .progress-kg span {
+    font-size: 16px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+  }
+
+  /* empty state */
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .empty .e-icon { font-size: 40px; margin-bottom: 12px; }
+
+  .already-done {
+    background: var(--card);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    color: var(--accent);
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .reset-week-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 12px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .data-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border: none;
+    margin-bottom: 10px;
+    transition: opacity 0.2s;
+  }
+  .data-btn:hover { opacity: 0.85; }
+  .data-btn.export { background: var(--accent); color: #000; }
+  .data-btn.import { background: var(--card2); color: var(--text); border: 1px solid var(--border); }
+  .data-btn.danger { background: var(--negative); color: #fff; }
+
+  .import-info {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .import-info strong { color: var(--text); }
+
+  #importFileInput { display: none; }
+
+  .sunday-reminder {
+    background: linear-gradient(135deg, #1a1a00, #2a2a00);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    margin: 16px 0;
+    animation: pulse-border 2s infinite;
+  }
+
+  @keyframes pulse-border {
+    0%, 100% { border-color: var(--accent); }
+    50% { border-color: #8aaa22; }
+  }
+
+  .sunday-reminder .s-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .sunday-reminder .s-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .week-summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+
+  .week-summary-card .ws-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .week-summary-card .ws-week {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .week-summary-card .ws-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--accent);
+  }
+
+  .week-summary-card .ws-score.neg { color: var(--negative); }
+
+  .week-summary-card .ws-details {
+    font-size: 12px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MON TRACKER</h1>
+  <div class="week-badge" id="weekBadge">Semaine 1</div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('dashboard')">Dashboard</button>
+  <button class="tab" onclick="showTab('checkin')">Check-in</button>
+  <button class="tab" onclick="showTab('poids')">Poids</button>
+  <button class="tab" onclick="showTab('stats')">Stats</button>
+  <button class="tab" onclick="showTab('data')">💾 Data</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="score-hero">
+    <div class="score-label">Score cette semaine</div>
+    <div class="score-number" id="weekScore">0</div>
+    <div class="score-sub" id="weekScoreSub">0 pts / 7 jours</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>Objectif poids</span>
+      <span id="progressText">— kg perdus</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-kg" id="progressKg">— <span>kg actuels</span></div>
+  </div>
+
+  <div class="section-title">Cette semaine</div>
+  <div class="stats-grid">
+    <div class="stat-card accent-card">
+      <div class="stat-val" id="d-streak">0</div>
+      <div class="stat-lbl">🔥 Streak jours</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="d-weekpts">0</div>
+      <div class="stat-lbl">📊 Pts semaine</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="d-weeksport">0</div>
+      <div class="stat-lbl">🏋️ Séances semaine</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="d-weekjours">0</div>
+      <div class="stat-lbl">📅 Jours loggés</div>
+    </div>
+  </div>
+
+  <div class="section-title" style="margin-top:20px">Depuis le début</div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-val" id="d-totalpts">0</div>
+      <div class="stat-lbl">🏆 Total points</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="d-sport">0</div>
+      <div class="stat-lbl">🏋️ Total séances</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="d-jourslog">0</div>
+      <div class="stat-lbl">📅 Total jours</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="d-bonsjours">0</div>
+      <div class="stat-lbl">✅ Bons jours</div>
+    </div>
+  </div>
+
+  <div id="sundayReminder"></div>
+
+  <div class="section-title" style="margin-top:20px">Jours cette semaine</div>
+  <div id="weekDaysPreview"></div>
+</div>
+
+<!-- CHECK-IN -->
+<div class="page" id="page-checkin">
+  <div id="alreadyDone" class="already-done" style="display:none">
+    ✅ Check-in déjà fait aujourd'hui !<br>
+    <small style="color:var(--muted)">Reviens demain 😎</small>
+    <br><button class="reset-week-btn" onclick="resetToday()">Modifier</button>
+  </div>
+
+  <div id="checkinForm">
+    <div class="section-title">Aujourd'hui</div>
+
+    <div class="checkin-question">
+      <div>
+        <div class="q-text">🏋️ As-tu fait du sport ?</div>
+        <div class="q-pts">≥ 40 min d'effort réel · +20 / -4</div>
+      </div>
+      <div class="toggle-wrap">
+        <button class="toggle-btn yes" onclick="setAnswer('sport', true, this)">✓</button>
+        <button class="toggle-btn no" onclick="setAnswer('sport', false, this)">✗</button>
+      </div>
+    </div>
+
+    <div class="checkin-question">
+      <div>
+        <div class="q-text">🍬 Journée sans sucreries ?</div>
+        <div class="q-pts">+4 si oui / -4 si non</div>
+      </div>
+      <div class="toggle-wrap">
+        <button class="toggle-btn yes" onclick="setAnswer('sucre', true, this)">✓</button>
+        <button class="toggle-btn no" onclick="setAnswer('sucre', false, this)">✗</button>
+      </div>
+    </div>
+
+    <div class="checkin-question">
+      <div>
+        <div class="q-text">🍺 Journée sans alcool ?</div>
+        <div class="q-pts">+4 si oui / -6 si non</div>
+      </div>
+      <div class="toggle-wrap">
+        <button class="toggle-btn yes" onclick="setAnswer('alcool', true, this)">✓</button>
+        <button class="toggle-btn no" onclick="setAnswer('alcool', false, this)">✗</button>
+      </div>
+    </div>
+
+    <div class="checkin-question">
+      <div>
+        <div class="q-text">🍔 Journée sans malbouffe ?</div>
+        <div class="q-pts">Fast food, snack, etc. · +4 si oui / -6 si non</div>
+      </div>
+      <div class="toggle-wrap">
+        <button class="toggle-btn yes" onclick="setAnswer('malbouffe', true, this)">✓</button>
+        <button class="toggle-btn no" onclick="setAnswer('malbouffe', false, this)">✗</button>
+      </div>
+    </div>
+
+    <div class="checkin-question">
+      <div>
+        <div class="q-text">💧 Au moins 1,5L d'eau ?</div>
+        <div class="q-pts">+3 si oui / -2 si non</div>
+      </div>
+      <div class="toggle-wrap">
+        <button class="toggle-btn yes" onclick="setAnswer('eau', true, this)">✓</button>
+        <button class="toggle-btn no" onclick="setAnswer('eau', false, this)">✗</button>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitCheckin()" disabled>VALIDER MA JOURNÉE</button>
+  </div>
+</div>
+
+<!-- POIDS -->
+<div class="page" id="page-poids">
+  <div class="weight-section">
+    <h3>📊 Mesure hebdomadaire</h3>
+    <div class="input-row">
+      <div class="input-group">
+        <label>Poids (kg)</label>
+        <input type="number" id="inputPoids" placeholder="145" step="0.1" min="50" max="300">
+      </div>
+      <div class="input-group">
+        <label>Taux de graisse (%)</label>
+        <input type="number" id="inputGraisse" placeholder="35" step="0.1" min="5" max="70">
+      </div>
+    </div>
+    <button class="submit-btn" onclick="savePoids()">ENREGISTRER</button>
+  </div>
+
+  <div class="section-title">Historique poids</div>
+  <div id="poidsHistory"></div>
+</div>
+
+<!-- STATS -->
+<div class="page" id="page-stats">
+  <div class="chart-wrap">
+    <div class="chart-title">Évolution du score hebdo</div>
+    <canvas id="chartScore" height="160"></canvas>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-title">Évolution du poids</div>
+    <canvas id="chartPoids" height="160"></canvas>
+  </div>
+
+  <div class="section-title">Records & Streaks</div>
+  <div id="streaksList"></div>
+</div>
+
+<!-- DATA -->
+<div class="page" id="page-data">
+  <div class="section-title">Sauvegarde</div>
+
+  <div class="import-info">
+    <strong>Comment ça marche ?</strong><br>
+    1. Exporte tes données → fichier JSON téléchargé<br>
+    2. Sauvegarde ce fichier sur <strong>Google Drive</strong> ou <strong>iCloud</strong><br>
+    3. Si tu changes de téléphone ou perds tes données → importe le fichier pour tout récupérer
+  </div>
+
+  <div class="last-export" id="lastExportLabel">Dernier export : jamais</div>
+
+  <button class="data-btn export" onclick="exportData()">⬇️ EXPORTER MES DONNÉES</button>
+  <button class="data-btn import" onclick="document.getElementById('importFileInput').click()">⬆️ IMPORTER UN FICHIER</button>
+  <input type="file" id="importFileInput" accept=".json" onchange="importData(event)">
+
+  <div class="section-title" style="margin-top:30px">Danger zone</div>
+  <button class="data-btn danger" onclick="resetAllData()">🗑️ EFFACER TOUTES LES DONNÉES</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ DATA ============
+const STORAGE_KEY = 'damian_tracker_v1';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return {
+    entries: [],      // { date, sport, sucre, alcool, malbouffe, eau, points, bonus }
+    poids: [],        // { date, kg, graisse }
+    weekStart: todayStr(),
+    weekNumber: 1
+  };
+}
+
+function saveData(d) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(d));
+}
+
+function todayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function formatDate(str) {
+  const d = new Date(str + 'T12:00:00');
+  return d.toLocaleDateString('fr-BE', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+// ============ SCORING ============
+function calcPoints(entry) {
+  let pts = 0;
+  pts += entry.sport ? 20 : -4;
+  pts += entry.sucre ? 4 : -4;
+  pts += entry.alcool ? 4 : -6;
+  pts += entry.malbouffe ? 4 : -6;
+  pts += entry.eau ? 3 : -2;
+  // Bonus journée parfaite nourriture
+  if (entry.sucre && entry.alcool && entry.malbouffe && entry.eau) pts += 5;
+  return pts;
+}
+
+// ============ ANSWERS STATE ============
+let answers = {};
+
+function setAnswer(key, val, btn) {
+  answers[key] = val;
+  const wrap = btn.closest('.toggle-wrap');
+  wrap.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Check if all answered
+  const allKeys = ['sport','sucre','alcool','malbouffe','eau'];
+  const done = allKeys.every(k => k in answers);
+  document.getElementById('submitBtn').disabled = !done;
+}
+
+function submitCheckin() {
+  const data = loadData();
+  const today = todayStr();
+  // Remove existing entry for today if any
+  data.entries = data.entries.filter(e => e.date !== today);
+  const entry = { date: today, ...answers };
+  entry.points = calcPoints(entry);
+  data.entries.push(entry);
+  saveData(data);
+  answers = {};
+  // Reset buttons
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('submitBtn').disabled = true;
+  showToast(`+${entry.points > 0 ? '+' : ''}${entry.points} pts ! 🎯`);
+  refreshAll();
+  showTab('dashboard');
+}
+
+function resetToday() {
+  document.getElementById('alreadyDone').style.display = 'none';
+  document.getElementById('checkinForm').style.display = 'block';
+}
+
+// ============ POIDS ============
+function savePoids() {
+  const kg = parseFloat(document.getElementById('inputPoids').value);
+  const graisse = parseFloat(document.getElementById('inputGraisse').value);
+  if (!kg) { showToast('Entre ton poids !'); return; }
+  const data = loadData();
+  const today = todayStr();
+  data.poids = data.poids.filter(p => p.date !== today);
+  data.poids.push({ date: today, kg, graisse: graisse || null });
+  saveData(data);
+  document.getElementById('inputPoids').value = '';
+  document.getElementById('inputGraisse').value = '';
+  showToast('Poids enregistré 💪');
+  refreshAll();
+}
+
+// ============ WEEK LOGIC ============
+function getWeekEntries(data) {
+  const monday = getMondayOfWeek(new Date());
+  const mondayStr = monday.toISOString().split('T')[0];
+  return data.entries.filter(e => e.date >= mondayStr);
+}
+
+function getMondayOfWeek(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
+}
+
+function isSunday() {
+  return new Date().getDay() === 0;
+}
+
+function getWeekNumber(data) {
+  if (!data.entries.length && !data.poids.length) return 1;
+  const allDates = [...data.entries.map(e => e.date), ...data.poids.map(p => p.date)].sort();
+  if (!allDates.length) return 1;
+  const firstDate = new Date(allDates[0] + 'T12:00:00');
+  const now = new Date();
+  const diffMs = now - firstDate;
+  return Math.max(1, Math.ceil(diffMs / (7 * 24 * 60 * 60 * 1000)));
+}
+
+function getWeekSummaries(data) {
+  // Group all entries by week (monday)
+  const byWeek = {};
+  data.entries.forEach(e => {
+    const mon = getMondayOfWeek(new Date(e.date + 'T12:00:00')).toISOString().split('T')[0];
+    if (!byWeek[mon]) byWeek[mon] = { entries: [], poids: null };
+    byWeek[mon].entries.push(e);
+  });
+  // Attach poids to closest week
+  data.poids.forEach(p => {
+    const mon = getMondayOfWeek(new Date(p.date + 'T12:00:00')).toISOString().split('T')[0];
+    if (!byWeek[mon]) byWeek[mon] = { entries: [], poids: null };
+    byWeek[mon].poids = p;
+  });
+  return byWeek;
+}
+
+// ============ STREAKS ============
+function computeStreaks(data) {
+  const entries = [...data.entries].sort((a,b) => a.date.localeCompare(b.date));
+
+  let currentStreak = 0;
+  let maxStreak = 0;
+  let noAlcoolCurrent = 0;
+  let noAlcoolMax = 0;
+  let noMalbouffe = 0;
+  let totalSport = 0;
+  let totalGoodDays = 0;
+  let totalBadDays = 0;
+
+  // Current streak (consecutive days with positive score)
+  const sorted = [...entries].reverse();
+  for (const e of sorted) {
+    if (e.points > 0) currentStreak++;
+    else break;
+  }
+
+  for (const e of entries) {
+    if (e.points > 0) maxStreak = Math.max(maxStreak, ++maxStreak - (maxStreak - maxStreak));
+    if (e.sport) totalSport++;
+    if (e.alcool) noAlcoolCurrent++;
+    else noAlcoolCurrent = 0;
+    noAlcoolMax = Math.max(noAlcoolMax, noAlcoolCurrent);
+    if (e.malbouffe) noMalbouffe++;
+    if (e.points > 0) totalGoodDays++;
+    else totalBadDays++;
+  }
+
+  // Recalc maxStreak properly
+  let streak = 0;
+  maxStreak = 0;
+  for (const e of entries) {
+    if (e.points > 0) { streak++; maxStreak = Math.max(maxStreak, streak); }
+    else streak = 0;
+  }
+
+  return { currentStreak, maxStreak, noAlcoolMax, totalSport, totalGoodDays, totalBadDays };
+}
+
+// ============ REFRESH UI ============
+function refreshAll() {
+  const data = loadData();
+  const today = todayStr();
+  const todayEntry = data.entries.find(e => e.date === today);
+
+  // Week badge
+  document.getElementById('weekBadge').textContent = `Semaine ${getWeekNumber(data)}`;
+
+  // Dashboard score (semaine)
+  const weekEntries = getWeekEntries(data);
+  const weekScore = weekEntries.reduce((s, e) => s + e.points, 0);
+  const scoreEl = document.getElementById('weekScore');
+  scoreEl.textContent = (weekScore >= 0 ? '+' : '') + weekScore;
+  scoreEl.className = 'score-number' + (weekScore < 0 ? ' negative' : '');
+  document.getElementById('weekScoreSub').textContent = `${weekEntries.length} jour${weekEntries.length > 1 ? 's' : ''} loggés · semaine en cours`;
+
+  // Progress poids
+  const sortedPoids = [...data.poids].sort((a,b) => a.date.localeCompare(b.date));
+  const lastPoids = sortedPoids.length ? sortedPoids[sortedPoids.length - 1] : null;
+  const startWeight = 145;
+  const goalWeight = 90;
+  if (lastPoids) {
+    const lost = startWeight - lastPoids.kg;
+    const pct = Math.max(0, Math.min(100, (lost / (startWeight - goalWeight)) * 100));
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = `${lost > 0 ? lost.toFixed(1) : 0} kg perdus`;
+    document.getElementById('progressKg').innerHTML = `${lastPoids.kg} <span>kg actuels</span>`;
+  } else {
+    document.getElementById('progressText').textContent = '— kg perdus';
+    document.getElementById('progressKg').innerHTML = `— <span>kg actuels</span>`;
+  }
+
+  // Stats semaine
+  const streaks = computeStreaks(data);
+  const weekSport = weekEntries.filter(e => e.sport).length;
+  document.getElementById('d-streak').textContent = streaks.currentStreak;
+  document.getElementById('d-weekpts').textContent = (weekScore >= 0 ? '+' : '') + weekScore;
+  document.getElementById('d-weeksport').textContent = weekSport;
+  document.getElementById('d-weekjours').textContent = weekEntries.length;
+
+  // Stats totales
+  const totalPts = data.entries.reduce((s, e) => s + e.points, 0);
+  document.getElementById('d-totalpts').textContent = (totalPts >= 0 ? '+' : '') + totalPts;
+  document.getElementById('d-sport').textContent = streaks.totalSport;
+  document.getElementById('d-jourslog').textContent = data.entries.length;
+  document.getElementById('d-bonsjours').textContent = streaks.totalGoodDays;
+
+  // Sunday reminder
+  const reminderEl = document.getElementById('sundayReminder');
+  if (isSunday()) {
+    const hasPoidsCeWeek = weekEntries.length > 0 && lastPoids && lastPoids.date >= getMondayOfWeek(new Date()).toISOString().split('T')[0];
+    reminderEl.innerHTML = `
+      <div class="sunday-reminder">
+        <div class="s-title">⚖️ C'est dimanche !</div>
+        <div class="s-text">
+          Pense à te peser pour clôturer la semaine.<br>
+          ${hasPoidsCeWeek ? '✅ Poids déjà enregistré cette semaine' : '⏳ Pas encore de pesée cette semaine'}
+        </div>
+      </div>`;
+  } else {
+    reminderEl.innerHTML = '';
+  }
+
+  // Week days preview
+  const preview = document.getElementById('weekDaysPreview');
+  if (weekEntries.length === 0) {
+    preview.innerHTML = '<div class="empty"><div class="e-icon">📋</div>Aucun jour loggé cette semaine</div>';
+  } else {
+    preview.innerHTML = weekEntries.sort((a,b) => b.date.localeCompare(a.date)).map(e => `
+      <div class="history-entry">
+        <div>
+          <div class="h-date">${formatDate(e.date)}</div>
+          <div class="h-details">${e.sport ? '🏋️' : '😴'} ${e.sucre ? '✅' : '🍬'} ${e.alcool ? '✅' : '🍺'} ${e.malbouffe ? '✅' : '🍔'} ${e.eau ? '💧' : '💧❌'}</div>
+        </div>
+        <div class="h-score ${e.points < 0 ? 'neg' : ''}">${e.points > 0 ? '+' : ''}${e.points}</div>
+      </div>
+    `).join('');
+  }
+
+  // Check-in tab
+  if (todayEntry) {
+    document.getElementById('alreadyDone').style.display = 'block';
+    document.getElementById('checkinForm').style.display = 'none';
+  } else {
+    document.getElementById('alreadyDone').style.display = 'none';
+    document.getElementById('checkinForm').style.display = 'block';
+  }
+
+  // Poids history
+  const poidsHist = document.getElementById('poidsHistory');
+  if (data.poids.length === 0) {
+    poidsHist.innerHTML = '<div class="empty"><div class="e-icon">⚖️</div>Aucune mesure enregistrée</div>';
+  } else {
+    poidsHist.innerHTML = [...data.poids].reverse().map((p, i, arr) => {
+      const prev = arr[i + 1];
+      const diff = prev ? (p.kg - prev.kg).toFixed(1) : null;
+      const diffStr = diff ? (diff > 0 ? `▲ +${diff}kg` : `▼ ${diff}kg`) : '';
+      const diffColor = diff ? (diff > 0 ? 'color:var(--negative)' : 'color:var(--positive)') : '';
+      return `
+      <div class="history-entry">
+        <div>
+          <div class="h-date">${formatDate(p.date)}</div>
+          <div class="h-details">
+            ${p.graisse ? `Taux de graisse : ${p.graisse}%` : 'Taux de graisse : —'}
+            ${diffStr ? `<span style="${diffColor}; margin-left:8px">${diffStr}</span>` : ''}
+          </div>
+        </div>
+        <div class="h-score">${p.kg} kg</div>
+      </div>`
+    }).join('');
+  }
+
+  // Streaks list
+  document.getElementById('streaksList').innerHTML = `
+    <div class="streak-row">
+      <div class="streak-icon">🔥</div>
+      <div class="streak-info">
+        <div class="s-label">Streak actuel</div>
+        <div class="s-val">Jours consécutifs positifs</div>
+      </div>
+      <div class="streak-num">${streaks.currentStreak}</div>
+    </div>
+    <div class="streak-row">
+      <div class="streak-icon">🏆</div>
+      <div class="streak-info">
+        <div class="s-label">Meilleur streak</div>
+        <div class="s-val">Record personnel</div>
+      </div>
+      <div class="streak-num">${streaks.maxStreak}</div>
+    </div>
+    <div class="streak-row">
+      <div class="streak-icon">🍺</div>
+      <div class="streak-info">
+        <div class="s-label">Max jours sans alcool</div>
+        <div class="s-val">Consécutifs</div>
+      </div>
+      <div class="streak-num">${streaks.noAlcoolMax}</div>
+    </div>
+    <div class="streak-row">
+      <div class="streak-icon">🏋️</div>
+      <div class="streak-info">
+        <div class="s-label">Total séances sport</div>
+        <div class="s-val">Depuis le début</div>
+      </div>
+      <div class="streak-num">${streaks.totalSport}</div>
+    </div>
+    <div class="streak-row">
+      <div class="streak-icon">✅</div>
+      <div class="streak-info">
+        <div class="s-label">Bons jours</div>
+        <div class="s-val">Score positif</div>
+      </div>
+      <div class="streak-num">${streaks.totalGoodDays}</div>
+    </div>
+    <div class="streak-row">
+      <div class="streak-icon">❌</div>
+      <div class="streak-info">
+        <div class="s-label">Mauvais jours</div>
+        <div class="s-val">Score négatif</div>
+      </div>
+      <div class="streak-num">${streaks.totalBadDays}</div>
+    </div>
+  `;
+
+  drawCharts(data);
+  updateLastExportLabel();
+}
+
+// ============ CHARTS ============
+function drawCharts(data) {
+  drawScoreChart(data);
+  drawPoidsChart(data);
+}
+
+function drawScoreChart(data) {
+  const canvas = document.getElementById('chartScore');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio || 600;
+  canvas.height = 160 * (window.devicePixelRatio || 1);
+  ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+  const W = canvas.offsetWidth || 300;
+  const H = 160;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Group by week
+  const byWeek = {};
+  data.entries.forEach(e => {
+    const monday = getMondayOfWeek(new Date(e.date + 'T12:00:00')).toISOString().split('T')[0];
+    if (!byWeek[monday]) byWeek[monday] = 0;
+    byWeek[monday] += e.points;
+  });
+
+  const weeks = Object.keys(byWeek).sort();
+  if (weeks.length === 0) {
+    ctx.fillStyle = '#555';
+    ctx.font = '13px DM Sans';
+    ctx.textAlign = 'center';
+    ctx.fillText('Pas encore de données', W/2, H/2);
+    return;
+  }
+
+  const vals = weeks.map(w => byWeek[w]);
+  const maxVal = Math.max(...vals.map(Math.abs), 10);
+  const pad = { top: 20, bottom: 30, left: 40, right: 10 };
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+  const midY = pad.top + chartH / 2;
+
+  // Grid
+  ctx.strokeStyle = '#2a2a2a';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad.left, midY);
+  ctx.lineTo(W - pad.right, midY);
+  ctx.stroke();
+
+  // Zero label
+  ctx.fillStyle = '#555';
+  ctx.font = '10px DM Sans';
+  ctx.textAlign = 'right';
+  ctx.fillText('0', pad.left - 4, midY + 4);
+
+  const barW = Math.min(30, (chartW / weeks.length) - 4);
+
+  weeks.forEach((w, i) => {
+    const x = pad.left + (i / weeks.length) * chartW + (chartW / weeks.length - barW) / 2;
+    const val = vals[i];
+    const barH = Math.abs(val) / maxVal * (chartH / 2 - 4);
+    const y = val >= 0 ? midY - barH : midY;
+    ctx.fillStyle = val >= 0 ? '#c8f135' : '#ff4d4d';
+    ctx.beginPath();
+    ctx.roundRect(x, y, barW, barH, 3);
+    ctx.fill();
+
+    // Label
+    ctx.fillStyle = '#666';
+    ctx.font = '9px DM Sans';
+    ctx.textAlign = 'center';
+    ctx.fillText(`S${i+1}`, x + barW/2, H - 8);
+  });
+}
+
+function drawPoidsChart(data) {
+  const canvas = document.getElementById('chartPoids');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * window.devicePixelRatio || 600;
+  canvas.height = 160 * (window.devicePixelRatio || 1);
+  ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+  const W = canvas.offsetWidth || 300;
+  const H = 160;
+
+  ctx.clearRect(0, 0, W, H);
+
+  const sorted = [...data.poids].sort((a,b) => a.date.localeCompare(b.date));
+  if (sorted.length < 2) {
+    ctx.fillStyle = '#555';
+    ctx.font = '13px DM Sans';
+    ctx.textAlign = 'center';
+    ctx.fillText(sorted.length === 0 ? 'Pas encore de données' : 'Besoin de 2 mesures minimum', W/2, H/2);
+    return;
+  }
+
+  const vals = sorted.map(p => p.kg);
+  const minVal = Math.min(...vals) - 2;
+  const maxVal = Math.max(...vals) + 2;
+  const pad = { top: 20, bottom: 30, left: 45, right: 10 };
+  const chartW = W - pad.left - pad.right;
+  const chartH = H - pad.top - pad.bottom;
+
+  const toX = (i) => pad.left + (i / (vals.length - 1)) * chartW;
+  const toY = (v) => pad.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH;
+
+  // Goal line at 90
+  if (90 >= minVal && 90 <= maxVal) {
+    const goalY = toY(90);
+    ctx.strokeStyle = '#c8f13544';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, goalY);
+    ctx.lineTo(W - pad.right, goalY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#c8f135';
+    ctx.font = '9px DM Sans';
+    ctx.textAlign = 'right';
+    ctx.fillText('90kg', pad.left - 4, goalY + 4);
+  }
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, pad.top, 0, H - pad.bottom);
+  grad.addColorStop(0, '#4dc8ff33');
+  grad.addColorStop(1, '#4dc8ff00');
+  ctx.beginPath();
+  vals.forEach((v, i) => {
+    if (i === 0) ctx.moveTo(toX(i), toY(v));
+    else ctx.lineTo(toX(i), toY(v));
+  });
+  ctx.lineTo(toX(vals.length - 1), H - pad.bottom);
+  ctx.lineTo(toX(0), H - pad.bottom);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.strokeStyle = '#4dc8ff';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  vals.forEach((v, i) => {
+    if (i === 0) ctx.moveTo(toX(i), toY(v));
+    else ctx.lineTo(toX(i), toY(v));
+  });
+  ctx.stroke();
+
+  // Dots
+  vals.forEach((v, i) => {
+    ctx.fillStyle = '#4dc8ff';
+    ctx.beginPath();
+    ctx.arc(toX(i), toY(v), 3, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Y labels
+  ctx.fillStyle = '#555';
+  ctx.font = '9px DM Sans';
+  ctx.textAlign = 'right';
+  [minVal, maxVal].forEach(v => {
+    ctx.fillText(Math.round(v) + 'kg', pad.left - 4, toY(v) + 4);
+  });
+}
+
+// ============ TABS ============
+function showTab(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick').includes(name)) t.classList.add('active');
+  });
+  if (name === 'stats') setTimeout(() => drawCharts(loadData()), 50);
+}
+
+// ============ TOAST ============
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ============ EXPORT / IMPORT ============
+function exportData() {
+  const data = loadData();
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `tracker-backup-${dateStr}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  // Save last export date
+  localStorage.setItem('damian_last_export', new Date().toISOString());
+  updateLastExportLabel();
+  showToast('Export téléchargé ! 💾');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.entries || !data.poids) {
+        showToast('Fichier invalide ❌');
+        return;
+      }
+      if (confirm(`Importer ${data.entries.length} jours et ${data.poids.length} mesures de poids ? Tes données actuelles seront remplacées.`)) {
+        saveData(data);
+        refreshAll();
+        showToast(`${data.entries.length} jours importés ✅`);
+      }
+    } catch(err) {
+      showToast('Erreur de lecture ❌');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function resetAllData() {
+  if (confirm('⚠️ Effacer TOUTES les données définitivement ? Cette action est irréversible.')) {
+    if (confirm('Tu es vraiment sûr ? Tout sera perdu.')) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('damian_last_export');
+      refreshAll();
+      showToast('Données effacées');
+    }
+  }
+}
+
+function updateLastExportLabel() {
+  const last = localStorage.getItem('damian_last_export');
+  const el = document.getElementById('lastExportLabel');
+  if (!el) return;
+  if (last) {
+    const d = new Date(last);
+    el.textContent = `Dernier export : ${d.toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+    el.style.color = '#c8f135';
+  } else {
+    el.textContent = 'Dernier export : jamais';
+    el.style.color = '#ff4d4d';
+  }
+}
+
+// ============ INIT ============
+refreshAll();
+updateLastExportLabel();
+window.addEventListener('resize', () => drawCharts(loadData()));
+</script>
+</body>
+</html>
